@@ -1,65 +1,50 @@
-##Sakila DVD Rental Data Analysis using SQL
+# Sakila DVD Rental Data Analysis using SQL
 
-##Project Overview:
-This project explores the Sakila DVD Rental database using SQL to uncover key business insights such as revenue trends, customer behavior, and inventory performance.
-The aim is to demonstrate real-world SQL skills for data cleaning, transformation, and analysis using a relational database system.
+## Project Overview:
+- This project explores the Sakila DVD Rental database using SQL to uncover key business insights such as revenue trends, customer behavior, and inventory performance.
+- The aim is to demonstrate real-world SQL skills for data cleaning, transformation, and analysis using a relational database system.
 
-##Tools Used:
+# Tools Used:
+- MySQL (Database & Querying)
+- Sakila Sample Dataset (DVD rental store data)
 
-MySQL (Database & Querying)
-
-Sakila Sample Dataset (DVD rental store data)
-
-Objectives:
-
-##Business Objectives
-
+## Objectives:
+### Business Objectives
 The goal of this project is to analyze the Sakila DVD rental data to uncover insights that can help improve store operations and customer experience.
 Specifically, the project aims to:
+- Identify top-performing film categories and revenue trends.
+- Measure store performance across locations.
+- Analyze customer behavior, including rental frequency and lifetime value (LTV).
+- Detect inactive customers (potential churn) for re-engagement opportunities.
+- Evaluate inventory utilization and availability to optimize stock levels.
 
-Identify top-performing film categories and revenue trends.
-
-Measure store performance across locations.
-
-Analyze customer behavior, including rental frequency and lifetime value (LTV).
-
-Detect inactive customers (potential churn) for re-engagement opportunities.
-
-Evaluate inventory utilization and availability to optimize stock levels.
-
-##Technical Objectives:
-
+### Technical Objectives:
 From a data engineering and analytics perspective, this project focuses on:
+- Setting up and understanding the Sakila MySQL database schema.
+- Performing data exploration to assess structure, data types, and quality.
+- Creating clean and analysis-ready views using SQL joins and transformations.
+- Writing analytical SQL queries to generate insights and KPIs.
 
-Setting up and understanding the Sakila MySQL database schema.
+## Project Structure
 
-Performing data exploration to assess structure, data types, and quality.
-
-Creating clean and analysis-ready views using SQL joins and transformations.
-
-Writing analytical SQL queries to generate insights and KPIs.
-
-##Project Structure
-
-1. Data base setup
-
-- Database Creation: The project uses the Sakila database, which is already loaded in MySQL.
+### 1. Data base setup
+#### Database Creation: The project uses the Sakila database, which is already loaded in MySQL.
 It contains information about movies, customers, rentals, and payments.
 We just select the database to start working with it.
 
-sql
+```sql
 
 -- Select the Sakila database
 USE sakila;
 
 -- Check available tables
 SHOW TABLES;
-
--Table Creation: A view named v_payment_analysis is created.
+```
+#### Table Creation: A view named v_payment_analysis is created.
 This view joins data from different tables like payment, rental, inventory, film, category, and customer.
 It combines all important information (customer, movie, amount paid, rental date, and movie category) into one table for easy analysis.
 
-sql
+```sql
 
 CREATE OR REPLACE VIEW v_payment_analysis AS
 SELECT 
@@ -83,8 +68,9 @@ JOIN film f           ON i.film_id = f.film_id
 JOIN film_category fc ON f.film_id = fc.film_id
 JOIN category cat     ON fc.category_id = cat.category_id
 JOIN customer c       ON p.customer_id = c.customer_id;
+```
 
-- Explanation:
+#### Explanation:
 payment → has payment amount and date.
 rental → shows when the movie was rented and returned.
 film → gives movie details like name and price.
@@ -92,12 +78,13 @@ category → shows the movie genre (like Action, Comedy).
 customer → adds customer information.
 
 
-2. Data Exploration & Cleaning
+### 2. Data Exploration & Cleaning
 
-- Data Exploration:This step helps us understand what data is available in the Sakila database and check if it’s ready for analysis.
-We look at table sizes, missing values, and sample data.
+#### Data Exploration:
+- This step helps us understand what data is available in the Sakila database and check if it’s ready for analysis.
+- We look at table sizes, missing values, and sample data.
 
-sql 
+```sql 
 
 
 -- Check total rows in main tables
@@ -114,16 +101,15 @@ SELECT * FROM film LIMIT 5;
 SELECT * FROM rental LIMIT 5;
 SELECT * FROM payment LIMIT 5;
 SELECT * FROM customer LIMIT 5;
+```
+#### Explanation:
+- We count rows in each table to see how much data we have.
+- We check sample rows to understand what columns are available.
 
-
-- Explanation:
-We count rows in each table to see how much data we have.
-We check sample rows to understand what columns are available.
-
--Data Quality Checks:
+#### Data Quality Checks:
 Before analysis, we check if there are any missing or duplicate records in important columns.
 
-sql
+```sql
 
 -- Check for missing values in rental and payment tables
 SELECT 
@@ -140,16 +126,17 @@ SELECT rental_id, COUNT(*) AS count
 FROM rental
 GROUP BY rental_id
 HAVING COUNT(*) > 1;
+```
 
--Explanation:
-We check for NULL values to find missing data.
-We check for duplicate rentals to make sure data is clean.
+#### Explanation:
+- We check for NULL values to find missing data.
+- We check for duplicate rentals to make sure data is clean.
 
--Data Cleaning:
+#### Data Cleaning:
 The data in Sakila is mostly clean, but we can make it easier to use by creating a clean view.
 This new view adds clear names and calculates the rental duration.
 
-sql
+```sql
 
 CREATE OR REPLACE VIEW v_rental_clean AS
 SELECT 
@@ -160,20 +147,20 @@ SELECT
     r.return_date,
     TIMESTAMPDIFF(HOUR, r.rental_date, r.return_date) AS rental_hours
 FROM rental r;
+```
 
--Explanation:
-TIMESTAMPDIFF calculates how long each movie was rented (in hours).
-This makes it easy to find short or long rentals later.
+#### Explanation:
+- TIMESTAMPDIFF calculates how long each movie was rented (in hours).
+- This makes it easy to find short or long rentals later.
 
-3. Data Analysis & Findings
+### 3. Data Analysis & Findings
+- In this step, we use the clean views (v_payment_analysis and v_rental_clean) to explore business insights.
+- We focus on total revenue, top categories, customer spending, and rental trends.
 
-In this step, we use the clean views (v_payment_analysis and v_rental_clean) to explore business insights.
-We focus on total revenue, top categories, customer spending, and rental trends.
+#### Revenue by Film Category
+- This query shows which movie categories bring in the most revenue.
 
--Revenue by Film Category
-This query shows which movie categories bring in the most revenue.
-
-sql
+```sql
 
 SELECT 
     category_name,
@@ -181,17 +168,16 @@ SELECT
 FROM v_payment_analysis
 GROUP BY category_name
 ORDER BY total_revenue DESC;
+```
+-- Explanation:
+- Groups all payments by category name.
+- Adds up total revenue for each category.
+- Helps find the most profitable movie genres.
 
--Explanation:
-Groups all payments by category name.
-Adds up total revenue for each category.
-Helps find the most profitable movie genres.
-
-
--Monthly Revenue Trend
+#### Monthly Revenue Trend
 This query helps to understand revenue changes over time.
 
-sql
+```sql
 
 SELECT 
     DATE_FORMAT(payment_date, '%Y-%m') AS month,
@@ -199,6 +185,7 @@ SELECT
 FROM v_payment_analysis
 GROUP BY month
 ORDER BY month;
+```
 
 -Explanation:
 Groups total revenue by month.
@@ -209,7 +196,7 @@ Helps find seasonal trends in rentals.
 -Store Performance
 Find out which store performs better based on revenue and customers.
 
-sql
+```sql
 
 SELECT 
     store_id,
@@ -218,6 +205,7 @@ SELECT
 FROM v_payment_analysis
 GROUP BY store_id
 ORDER BY total_revenue DESC;
+```
 
 -Explanation:
 Groups revenue by store ID.
@@ -228,7 +216,7 @@ Helps compare store performance.
 -Top Customers by Spending (LTV)
 Find the customers who spend the most overall.
 
-sql
+```sql
 
 SELECT 
     customer_id,
@@ -239,6 +227,7 @@ FROM v_payment_analysis
 GROUP BY customer_id, customer_name
 ORDER BY total_spent DESC
 LIMIT 10;
+```
 
 -Explanation:
 Sums payments per customer.
@@ -248,7 +237,7 @@ Shows top 10 customers by total money spent.
 -Most Rented Movies (Top Films)
 Find which movies are rented the most times.
 
-sql
+```sql
 
 SELECT 
     film_title,
@@ -257,6 +246,7 @@ FROM v_payment_analysis
 GROUP BY film_title
 ORDER BY total_rentals DESC
 LIMIT 10;
+```
 
 -Explanation:
 Counts how many times each movie was rented.
@@ -266,7 +256,7 @@ Shows the most popular films among customers.
 -Inactive Customers (Churn)
 Find customers who haven’t rented a movie in the last 90 days.
 
-sql
+```sql
 
 SELECT 
     c.customer_id,
@@ -278,13 +268,14 @@ GROUP BY c.customer_id, customer_name
 HAVING last_rental_date < DATE_SUB(CURDATE(), INTERVAL 90 DAY)
    OR last_rental_date IS NULL
 ORDER BY last_rental_date;
+```
 
 Explanation:
 Finds the last rental date of each customer.
 Filters customers who are inactive for 90+ days.
 Helps find customers who might have stopped renting.
 
-##Findings:
+#Findings:
 After analyzing the Sakila DVD rental data using SQL, the following insights were discovered:
 
 -Top Movie Categories:
@@ -310,7 +301,7 @@ These films attract a consistent audience across both stores.
 Around 20% of customers have not rented a movie in the last 90 days.
 These users may need special offers or reminders to return.
 
-##Report Summary:
+#Report Summary:
 
 The analysis was done using SQL queries on the Sakila sample database.
 A clean analytical view (v_payment_analysis) was created by joining related tables such as payment, rental, film, category, and customer.
@@ -326,7 +317,7 @@ Customer inactivity (churn)
 Each query helped understand how the DVD rental business performs and where improvements can be made.
 
 
-##Conclusion:
+#Conclusion:
 
 -The Sakila analysis shows that:
 Action and Sports films are the main revenue drivers.
@@ -334,6 +325,6 @@ Store 1 performs better overall in both sales and customers.
 Customer loyalty plays a big role — frequent renters bring steady income.
 A targeted marketing plan for inactive customers could increase sales.
 
-##Overall Insight:
+#Overall Insight:
 By using simple SQL queries and logical analysis, we can easily find business patterns, customer behavior, and growth opportunities in real-world data.
 
