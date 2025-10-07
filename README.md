@@ -275,7 +275,7 @@ ORDER BY last_rental_date;
 - Filters customers who are inactive for 90+ days.
 - Helps find customers who might have stopped renting.
 
-#Findings:
+# Findings:
 - After analyzing the Sakila DVD rental data using SQL, the following insights were discovered:
 
 ### Top Movie Categories:
